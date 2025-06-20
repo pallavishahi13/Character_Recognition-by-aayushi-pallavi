@@ -1,0 +1,49 @@
+# Neural network to recognize handwritten digits effectively using data from MNIST dataset
+
+import os
+import urllib   # To download data from MNIST website
+import gzip     # To unzip .zip files downloaded from MNIST
+
+import numpy as np
+
+# Download images from MNIST database
+
+def downloadMNISTData():
+    def download(filename, src = 'http://yann.lecun.com/exdb/mnist/'):
+        print('Downloading: ', filename)
+        urllib.urlretrieve(src + filename, filename)
+
+    def loadMNISTImages(filename):
+        if not os.path.exists(filename):
+            download(filename)
+
+        with gzip.open(filename, 'rb') as f:
+            # Downloads the images into a single 1d array
+            data = np.frombuffer(f.read(), np.unit8, offset = 16)
+
+            # Images are 28 x 28 pixels
+            # First dimension: number of images
+            # Second dimension: number of channels (color or monochrome)
+            # Third & fourth dimension: size of images in pixels
+            data = data.reshape(-1, 1, 28, 28)
+
+            # Converts byte values into float [0, 1]
+            return data/np.float32(256)
+
+    def loadMNISTLabels(filename):
+        if not os.path.exists(filename):
+            download(filename)
+
+            with gzip.open(filename, 'rb') as f:
+
+                # Returns an array of integers representing the values of the images to be classified
+                data = np.frombuffer(f.read(), np.unit8, offset = 8)
+
+        return data
+
+    X_train = loadMNISTImages('train-images-idx3-ubyte.gz')
+    y_train = loadMNISTLabels('train-labels-idx1-ubyte.gz')
+    X_test = loadMNISTImages('t10k-images-idx3-ubyte.gz')
+    y_test = loadMNISTImages('t10k-labels-idx1-ubyte.gz')
+
+    return X_train, y_train, X_test, y_test
